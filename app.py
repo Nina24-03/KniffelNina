@@ -1,76 +1,74 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-app.secret_key = 'dein_geheimer_schluessel'
+app.secret_key = "geheim"
 
-kategorien = ['1er', '2er', '3er', '4er', '5er', '6er', 'Bonus',
-              'Dreier', 'Vierer', 'Full House', 'Kleine Straße',
-              'Große Straße', 'Kniffel', 'Chance']
+kategorien = [
+    "1er", "2er", "3er", "4er", "5er", "6er", "Bonus",
+    "Dreier", "Vierer", "Full House", "Kleine Straße",
+    "Große Straße", "Kniffel", "Chance"
+]
 
 max_punkte = {
-    '1er': 5, '2er': 10, '3er': 15, '4er': 20, '5er': 25, '6er': 30,
-    'Bonus': 35, 'Dreier': 30, 'Vierer': 40, 'Full House': 25,
-    'Kleine Straße': 30, 'Große Straße': 40, 'Kniffel': 50, 'Chance': 50
+    "1er": 5, "2er": 10, "3er": 15, "4er": 20,
+    "5er": 25, "6er": 30, "Bonus": 35,
+    "Dreier": 30, "Vierer": 40,
+    "Full House": 25, "Kleine Straße": 30,
+    "Große Straße": 40, "Kniffel": 50, "Chance": 30
 }
 
-def init_spielstand(spieler_liste):
-    session['spieler_punkte'] = spieler_liste
-    session['punkte'] = {spieler: {k: '' for k in kategorien} for spieler in spieler_liste}
-    session['gesamtsumme'] = {spieler: 0 for spieler in spieler_liste}
+fixpunkte = {
+    "Full House": 25,
+    "Kleine Straße": 30,
+    "Große Straße": 40,
+    "Kniffel": 50
+}
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def start():
-    if request.method == 'POST':
-        spieler_eingabe = request.form.get('spieler')
-        spieler_liste = [s.strip() for s in spieler_eingabe.split(',') if s.strip()]
-        if not spieler_liste:
-            return "Bitte mindestens einen Spielernamen eingeben."
-        init_spielstand(spieler_liste)
-        return redirect(url_for('spiel'))
-    return render_template('start.html')
+    if request.method == "POST":
+        namen = request.form.getlist("spielername")
+        session["spieler"] = namen
+        session["punkte"] = {
+            name: {k: "" for k in kategorien} for name in namen
+        }
+        return redirect(url_for("spiel"))
+    return render_template("start.html")
 
-@app.route('/spiel', methods=['GET', 'POST'])
+@app.route("/spiel", methods=["GET", "POST"])
 def spiel():
-    if 'spieler_punkte' not in session:
-        return redirect(url_for('start'))
+    spieler_punkte = session.get("punkte", {})
+    if not spieler_punkte:
+        return redirect(url_for("start"))
 
-    spieler_punkte = session['spieler_punkte']
-    punkte = session['punkte']
-
-    if request.method == 'POST':
+    if request.method == "POST":
         for spieler in spieler_punkte:
             for kategorie in kategorien:
-                name = f"{spieler}_{kategorie}"
-                wert = request.form.get(name)
-                if wert:
-                    try:
-                        punkt = int(wert)
-                        if punkt <= max_punkte.get(kategorie, 100):  # großzügiges Limit für freie Felder
-                            session['punkte'][spieler][kategorie] = punkt
-                    except ValueError:
-                        pass
+                feldname = f"{spieler}_{kategorie}"
+                wert = request.form.get(feldname)
+                if wert is not None and wert.isdigit():
+                    spieler_punkte[spieler][kategorie] = int(wert)
 
-        # Bonus automatisch setzen
+        # Bonus automatisch berechnen
         for spieler in spieler_punkte:
-            ober_summe = sum(
-                session['punkte'][spieler][k] for k in ['1er', '2er', '3er', '4er', '5er', '6er']
-                if isinstance(session['punkte'][spieler][k], int)
+            obere_summe = sum(
+                spieler_punkte[spieler].get(k, 0) for k in kategorien[:6]
+                if isinstance(spieler_punkte[spieler].get(k), int)
             )
-            if ober_summe >= 63:
-                session['punkte'][spieler]['Bonus'] = 35
-            else:
-                session['punkte'][spieler]['Bonus'] = ''
+            spieler_punkte[spieler]["Bonus"] = 35 if obere_summe >= 63 else 0
 
-        # Gesamtsumme berechnen
-        session['gesamtsumme'] = {
-            spieler: sum(v for v in session['punkte'][spieler].values() if isinstance(v, int))
-            for spieler in spieler_punkte
-        }
-        session.modified = True
+        session["punkte"] = spieler_punkte
 
-    return render_template('spiel.html',
+    gesamtsumme = {}
+    for spieler, punkte in spieler_punkte.items():
+        obere = sum(punkte.get(k, 0) for k in kategorien[:7] if isinstance(punkte.get(k), int))
+        untere = sum(punkte.get(k, 0) for k in kategorien[7:] if isinstance(punkte.get(k), int))
+        gesamtsumme[spieler] = obere + untere
+
+    return render_template("spiel.html",
                            spieler_punkte=spieler_punkte,
                            kategorien=kategorien,
-                           punkte=session['punkte'],
-                           gesamtsumme=session['gesamtsumme'],
-                           max_punkte=max_punkte)
+                           punkte=spieler_punkte,
+                           max_punkte=max_punkte,
+                           gesamtsumme=gesamtsumme,
+                           fixpunkte=fixpunkte)
