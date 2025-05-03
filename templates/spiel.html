@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kniffel Spielstand</title>
+    <title>Kniffel Spiel</title>
 </head>
 <body>
     <h1>Kniffel Spielstand</h1>
@@ -17,9 +17,12 @@
             <tr>
                 <td>{{ kategorie }}</td>
                 {% for spieler in spieler_punkte %}
-                    <td>
-                        <input type="text" name="{{ spieler }}_{{ kategorie }}" value="{{ spieler_punkte[spieler][kategorie] }}">
-                    </td>
+                <td>
+                    <input type="number" name="{{ spieler }}_{{ kategorie }}"
+                           value="{{ punkte[spieler][kategorie] }}"
+                           {% if kategorie != 'Chance' %}max="{{ max_punkte[kategorie] }}"{% endif %}
+                           {% if punkte[spieler][kategorie] != '' %}readonly{% endif %}>
+                </td>
                 {% endfor %}
             </tr>
             {% endfor %}
@@ -27,10 +30,11 @@
         <br>
         <input type="submit" value="Aktualisieren">
     </form>
+
     <h2>Gesamtpunkte:</h2>
     <ul>
-        {% for spieler, summe in gesamtsumme.items() %}
-            <li>{{ spieler }}: {{ summe }} Punkte</li>
+        {% for spieler in spieler_punkte %}
+            <li>{{ spieler }}: {{ gesamtsumme[spieler] }} Punkte</li>
         {% endfor %}
     </ul>
 </body>
