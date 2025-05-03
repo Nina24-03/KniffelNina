@@ -5,6 +5,15 @@
 </head>
 <body>
     <h1>Kniffel Spielstand</h1>
+
+    <form method="post">
+        <label for="spieler">Spielernamen (Komma getrennt):</label>
+        <input type="text" name="spieler" placeholder="Spieler 1, Spieler 2, Spieler 3">
+        <input type="submit" value="Spiel starten">
+    </form>
+
+    {% if spieler_punkte %}
+    <h2>Kniffel Spielstand</h2>
     <form method="post">
         <table border="1" cellpadding="5">
             <tr>
@@ -12,15 +21,25 @@
                 {% for spieler in spieler_punkte %}
                     <th>{{ spieler }}</th>
                 {% endfor %}
+                <th>Gesamt</th>
             </tr>
-            {% for kategorie in kategorien %}
+            {% for kategorie in max_punkte %}
             <tr>
                 <td>{{ kategorie }}</td>
                 {% for spieler in spieler_punkte %}
-                <td>
-                    <input type="text" name="{{ spieler }}_{{ kategorie }}" value="{{ punkte[spieler][kategorie] }}">
-                </td>
+                    <td>
+                        <input type="number" name="{{ spieler }}_{{ kategorie }}"
+                               value="{{ punkte[spieler][kategorie] }}" max="{{ max_punkte[kategorie] }}"
+                               {% if punkte[spieler][kategorie] != '' %}readonly{% endif %}>
+                    </td>
                 {% endfor %}
+                <td>
+                    {% if kategorie in ['1er', '2er', '3er', '4er', '5er', '6er'] %}
+                        {{ sum(punkte[spieler][kategorie] for spieler in spieler_punkte if punkte[spieler][kategorie] != '') }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -34,5 +53,6 @@
             <li>{{ spieler }}: {{ summe }} Punkte</li>
         {% endfor %}
     </ul>
+    {% endif %}
 </body>
 </html>
