@@ -1,14 +1,13 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-from flask.sessions import SecureCookieSession
 
 app = Flask(__name__)
-app.secret_key = 'dein_geheimer_schluessel'  # Ändere diesen Schlüssel für mehr Sicherheit
+app.secret_key = 'dein_geheimer_schluessel'  # Stelle sicher, dass dies sicher ist!
 
 # Beispiel-Daten
 spieler_punkte = ['Spieler 1', 'Spieler 2', 'Spieler 3']
 kategorien = ['1er', '2er', '3er', '4er', '5er', '6er', 'Bonus', 'Dreier', 'Vierer', 'Full House', 'Kleine Straße', 'Große Straße', 'Kniffel', 'Chance']
 
-# Funktion, um die Spielstände zu initialisieren, falls sie noch nicht in der Session gespeichert sind
+# Funktion, um den Spielstand zu initialisieren
 def init_spielstand():
     if 'punkte' not in session:
         session['punkte'] = {spieler: {kategorie: '' for kategorie in kategorien} for spieler in spieler_punkte}
@@ -43,8 +42,12 @@ def index():
         # Speichern der Session
         session.modified = True
 
-    return render_template('index.html', spieler_punkte=spieler_punkte, kategorien=kategorien,
-                           punkte=session['punkte'], gesamtsumme=session['gesamtsumme'])
+    try:
+        return render_template('index.html', spieler_punkte=spieler_punkte, kategorien=kategorien,
+                               punkte=session['punkte'], gesamtsumme=session['gesamtsumme'])
+    except Exception as e:
+        # Fehlerbehandlung, wenn das Rendering fehlschlägt
+        return f"Es gab einen Fehler: {e}"
 
 if __name__ == '__main__':
     app.run(debug=True)
