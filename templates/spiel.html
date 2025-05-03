@@ -12,6 +12,8 @@
                 {% for spieler in spieler_punkte %}
                     <th>{{ spieler }}</th>
                 {% endfor %}
+                <th>Gesamt oben</th>
+                <th>Gesamt unten</th>
             </tr>
             {% for kategorie in kategorien %}
             <tr>
@@ -24,6 +26,32 @@
                            {% if punkte[spieler][kategorie] != '' %}readonly{% endif %}>
                 </td>
                 {% endfor %}
+                {% if loop.index == 7 %}  {# nach Bonus, also obere Hälfte fertig #}
+                    {% for spieler in spieler_punkte %}
+                        <td rowspan="8">
+                            {{ (
+                                punkte[spieler]['1er']|default(0, true) +
+                                punkte[spieler]['2er']|default(0, true) +
+                                punkte[spieler]['3er']|default(0, true) +
+                                punkte[spieler]['4er']|default(0, true) +
+                                punkte[spieler]['5er']|default(0, true) +
+                                punkte[spieler]['6er']|default(0, true) +
+                                punkte[spieler]['Bonus']|default(0, true)
+                            ) }}
+                        </td>
+                        <td rowspan="7">
+                            {{ (
+                                punkte[spieler]['Dreier']|default(0, true) +
+                                punkte[spieler]['Vierer']|default(0, true) +
+                                punkte[spieler]['Full House']|default(0, true) +
+                                punkte[spieler]['Kleine Straße']|default(0, true) +
+                                punkte[spieler]['Große Straße']|default(0, true) +
+                                punkte[spieler]['Kniffel']|default(0, true) +
+                                punkte[spieler]['Chance']|default(0, true)
+                            ) }}
+                        </td>
+                    {% endfor %}
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
