@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Kniffel Spiel</title>
+    <title>Kniffel Spielstand</title>
 </head>
 <body>
-    <h2>Hallo {{ spieler }}!</h2>
-    <p>Willkommen im Kniffel-Spiel. Hier könnte dein Spiel beginnen.</p>
+    <h1>Kniffel Spielstand</h1>
+    <form method="post">
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>Kategorie</th>
+                {% for spieler in spieler_punkte %}
+                    <th>{{ spieler }}</th>
+                {% endfor %}
+            </tr>
+            {% for kategorie in kategorien %}
+            <tr>
+                <td>{{ kategorie }}</td>
+                {% for spieler in spieler_punkte %}
+                    <td>
+                        <input type="text" name="{{ spieler }}_{{ kategorie }}" value="{{ spieler_punkte[spieler][kategorie] }}">
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <input type="submit" value="Aktualisieren">
+    </form>
+    <h2>Gesamtpunkte:</h2>
+    <ul>
+        {% for spieler, summe in gesamtsumme.items() %}
+            <li>{{ spieler }}: {{ summe }} Punkte</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
