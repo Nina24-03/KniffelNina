@@ -5,14 +5,14 @@ app.secret_key = "geheim"
 
 kategorien = [
     "1er", "2er", "3er", "4er", "5er", "6er", "Bonus",
-    "Dreier", "Vierer", "Full House", "Kleine Straße",
+    "Dreierpasch", "Viererpasch", "Full House", "Kleine Straße",
     "Große Straße", "Kniffel", "Chance"
 ]
 
 max_punkte = {
     "1er": 5, "2er": 10, "3er": 15, "4er": 20,
     "5er": 25, "6er": 30, "Bonus": 35,
-    "Dreier": 30, "Vierer": 40,
+    "Dreierpasch": 30, "Viererpasch": 40,
     "Full House": 25, "Kleine Straße": 30,
     "Große Straße": 40, "Kniffel": 50, "Chance": 30
 }
@@ -27,7 +27,11 @@ fixpunkte = {
 @app.route("/", methods=["GET", "POST"])
 def start():
     if request.method == "POST":
+        # Spieler von der Startseite erhalten
         namen = request.form.getlist("spielername")
+        namen = [name.strip() for name in namen if name.strip()]  # Leere Felder ignorieren
+        if not namen:
+            return redirect(url_for("start"))  # Keine gültigen Spieler
         session["spieler"] = namen
         session["punkte"] = {
             name: {k: "" for k in kategorien} for name in namen
@@ -42,6 +46,7 @@ def spiel():
         return redirect(url_for("start"))
 
     if request.method == "POST":
+        # Punkte aktualisieren
         for spieler in spieler_punkte:
             for kategorie in kategorien:
                 feldname = f"{spieler}_{kategorie}"
