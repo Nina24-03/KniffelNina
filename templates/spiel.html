@@ -69,8 +69,8 @@
                 {% for spieler in spieler_punkte %}
                 <td>
                     {{
-                        punkte[spieler]['Dreier']|default(0, true) +
-                        punkte[spieler]['Vierer']|default(0, true) +
+                        punkte[spieler]['Dreierpasch']|default(0, true) +
+                        punkte[spieler]['Viererpasch']|default(0, true) +
                         punkte[spieler]['Full House']|default(0, true) +
                         punkte[spieler]['Kleine Straße']|default(0, true) +
                         punkte[spieler]['Große Straße']|default(0, true) +
