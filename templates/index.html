@@ -1,15 +1,43 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Kniffel</title>
+    <title>Kniffel Spielstand</title>
 </head>
 <body>
-    <h1>Kniffel Spiel</h1>
-    <form action="/spiel" method="post">
-        <label for="spieler">Spielername:</label>
-        <input type="text" id="spieler" name="spieler" required>
-        <button type="submit">Spiel starten</button>
+    <h1>Kniffel Spielstand</h1>
+    {% if session.get('error_message') %}
+        <p style="color: red;">{{ session.get('error_message') }}</p>
+        {% with session['error_message'] = None %}
+        {% endwith %}
+    {% endif %}
+    <form method="post">
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>Kategorie</th>
+                {% for spieler in spieler_punkte %}
+                    <th>{{ spieler }}</th>
+                {% endfor %}
+            </tr>
+            {% for kategorie in kategorien %}
+            <tr>
+                <td>{{ kategorie }}</td>
+                {% for spieler in spieler_punkte %}
+                <td>
+                    <input type="text" name="{{ spieler }}_{{ kategorie }}" value="{{ punkte[spieler][kategorie] }}">
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <input type="submit" value="Aktualisieren">
     </form>
+
+    <h2>Gesamtpunkte:</h2>
+    <ul>
+        {% for spieler, summe in gesamtsumme.items() %}
+            <li>{{ spieler }}: {{ summe }} Punkte</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
