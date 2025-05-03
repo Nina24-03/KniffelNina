@@ -2,16 +2,28 @@
 <html>
 <head>
     <title>Spiel starten</title>
+    <script>
+        function spielerHinzufuegen() {
+            const container = document.getElementById("spielerliste");
+            const input = document.createElement("input");
+            input.type = "text";
+            input.name = "spielername";
+            input.placeholder = "Spielername";
+            container.appendChild(document.createElement("br"));
+            container.appendChild(input);
+        }
+    </script>
 </head>
 <body>
     <h1>Kniffel starten</h1>
     <form method="post">
-        <label>Spieler eingeben:</label><br>
-        <input type="text" name="spielername"><br>
-        <input type="text" name="spielername"><br>
-        <input type="text" name="spielername"><br>
-        <input type="text" name="spielername"><br>
+        <div id="spielerliste">
+            <input type="text" name="spielername" placeholder="Spielername"><br>
+            <input type="text" name="spielername" placeholder="Spielername"><br>
+        </div>
         <br>
+        <button type="button" onclick="spielerHinzufuegen()">+ Spieler hinzufügen</button>
+        <br><br>
         <input type="submit" value="Spiel starten">
     </form>
 </body>
