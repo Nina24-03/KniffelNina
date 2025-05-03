@@ -5,11 +5,6 @@
 </head>
 <body>
     <h1>Kniffel Spielstand</h1>
-    {% if session.get('error_message') %}
-        <p style="color: red;">{{ session.get('error_message') }}</p>
-        {% with session['error_message'] = None %}
-        {% endwith %}
-    {% endif %}
     <form method="post">
         <table border="1" cellpadding="5">
             <tr>
